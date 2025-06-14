@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "SummerBuild_Hackathon",
+    "slug": "SummerBuild_Hackathon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "plugins": [
+      "expo-font",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "infoPlist": {
+              "UIViewControllerBasedStatusBarAppearance": true
+            }
+          }
+        }
+      ]
+    ],
+    "ios": {
+      "bundleIdentifier": "com.yourcompany.summerbuild",
+      "supportsTablet": true,
+      "statusBarStyle": "light-content"
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#1e3c1f",
+      "translucent": true
+    },
+    "assetBundlePatterns": ["**/*"],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+  }
+}
