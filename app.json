@@ -1,0 +1,75 @@
+{
+  "expo": {
+    "name": "SummerBuild_Hackathon",
+    "slug": "SummerBuild_Hackathon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/nunito/Nunito_400Regular.ttf",
+            "node_modules/@expo-google-fonts/nunito/Nunito_700Bold.ttf",
+            "node_modules/@expo-google-fonts/poppins/Poppins_400Regular.ttf",
+            "node_modules/@expo-google-fonts/poppins/Poppins_700Bold.ttf",
+            "node_modules/@expo-google-fonts/poppins/Poppins_800ExtraBold.ttf"
+          ]
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "infoPlist": {
+              "UIViewControllerBasedStatusBarAppearance": true
+            }
+          }
+        }
+      ]
+    ],
+    "ios": {
+      "bundleIdentifier": "com.yourcompany.summerbuild",
+      "supportsTablet": true,
+      "statusBarStyle": "light-content",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1e3c1f"
+      },
+      "package": "com.yourcompany.summerbuild",
+      "versionCode": 1
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content",
+      "backgroundColor": "#1e3c1f",
+      "translucent": true
+    },
+    "assetBundlePatterns": ["**/*"],
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1e3c1f"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    },
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#FAFAFA",
+    "primaryColor": "#006D77",
+    "scheme": "summerbuild"
+  }
+}
