@@ -35,4 +35,8 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# verify
+.env
+node_modules/
+
 app-example
