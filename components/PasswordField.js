@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import InputField from './InputField';
 
-const PasswordField = ({ label, value, onChangeText, placeholder, marginBottom = 20 }) => {
+const PasswordField = ({ label, value, onChangeText, placeholder, marginBottom = 20, labelStyle, inputStyle }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -19,6 +19,8 @@ const PasswordField = ({ label, value, onChangeText, placeholder, marginBottom =
         onChangeText={onChangeText}
         placeholder={placeholder}
         style={styles.input}
+        labelStyle={labelStyle}
+        inputStyle={inputStyle}
       />
       <TouchableOpacity
         style={styles.eyeIcon}
@@ -40,7 +42,7 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: 'absolute',
     right: 15,
-    top: 40,
+    top: '45%',
   },
 });
 

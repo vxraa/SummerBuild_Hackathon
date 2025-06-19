@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     color: "#355E3B",
     fontFamily: "Poppins_700Bold",
-    marginBottom: 70,
+    marginBottom: 90,
     marginTop: 150,
     textAlign: 'center',
   },

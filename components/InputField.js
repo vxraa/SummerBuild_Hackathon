@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 
-const InputField = ({ label, placeholder, secureTextEntry, value, onChangeText, style, marginBottom = 20, keyboardType }) => {
+const InputField = ({ label, placeholder, secureTextEntry, value, onChangeText, style, marginBottom = 20, keyboardType, labelStyle, inputStyle }) => {
   return (
     <View style={[styles.container, { marginBottom }]}>
-      <Text style={styles.label}>{label}</Text>
+      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
       <TextInput
-        style={[styles.input, style]}
+        style={[styles.input, style, inputStyle]}
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
         value={value}
@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     fontFamily: 'Nunito_400Regular',
     backgroundColor: '#FFFFFF',
+    color: '#355E3B',
   },
 });
 
