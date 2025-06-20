@@ -9,6 +9,9 @@ import {
   TouchableOpacity,
   ImageBackground,
   Dimensions,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import InputField from "../components/InputField";
@@ -83,93 +86,103 @@ const Register = () => {
         style={styles.backgroundImage} 
         resizeMode="cover"
       >
-        <TouchableWithoutFeedback onPress={dismissKeyboard}>
-          <View style={styles.content}>
-            <View style={styles.contentContainer}>
-              <Text style={styles.header}>Register</Text>
-              
-              <View style={styles.nameFieldsContainer}>
-                <View style={styles.nameFieldWrapper}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardAvoidingView}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+        >
+          <ScrollView 
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+          >
+            <TouchableWithoutFeedback onPress={dismissKeyboard}>
+              <View style={styles.content}>
+                <View style={styles.contentContainer}>
+                  <Text style={styles.header}>Register</Text>
+                  
+                  <View style={styles.nameFieldsContainer}>
+                    <View style={styles.nameFieldWrapper}>
+                      <InputField
+                        label="First Name"
+                        value={firstname}
+                        onChangeText={setFirstName}
+                        keyboardType="default"
+                        placeholder="John"
+                        containerStyle={styles.nameInputField}
+                        labelStyle={styles.inputLabel}
+                        inputStyle={styles.nameInput}
+                      />
+                    </View>
+                    <View style={styles.nameFieldWrapper}>
+                      <InputField
+                        label="Last Name"
+                        value={lastname}
+                        onChangeText={setLastName}
+                        keyboardType="default"
+                        placeholder="Doe"
+                        containerStyle={styles.nameInputField}
+                        labelStyle={styles.inputLabel}
+                        inputStyle={styles.nameInput}
+                      />
+                    </View>
+                  </View>
+
                   <InputField
-                    label="First Name"
-                    value={firstname}
-                    onChangeText={setFirstName}
-                    keyboardType="default"
-                    placeholder="John"
-                    containerStyle={styles.nameInputField}
+                    label="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    placeholder="JohnDoe@gmail.com"
+                    containerStyle={styles.inputField}
                     labelStyle={styles.inputLabel}
-                    inputStyle={styles.nameInput}
+                    inputStyle={{ color: '#355E3B' }}
                   />
-                </View>
-                <View style={styles.nameFieldWrapper}>
-                  <InputField
-                    label="Last Name"
-                    value={lastname}
-                    onChangeText={setLastName}
-                    keyboardType="default"
-                    placeholder="Doe"
-                    containerStyle={styles.nameInputField}
-                    labelStyle={styles.inputLabel}
-                    inputStyle={styles.nameInput}
-                  />
-                </View>
-              </View>
 
-              <InputField
-                label="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                placeholder="JohnDoe@gmail.com"
-                containerStyle={styles.inputField}
-                labelStyle={styles.inputLabel}
-                inputStyle={{ color: '#355E3B' }}
-              />
-
-              <PasswordField 
-                label="Password" 
-                value={password} 
-                onChangeText={setPassword}
-                placeholder="Enter your password"
-                containerStyle={styles.passwordField}
-                labelStyle={styles.inputLabel}
-                inputStyle={{ color: '#355E3B' }}
-              />
-
-              <View style={styles.confirmPasswordWrapper}>
-                <PasswordField 
-                    label="Confirm Password" 
-                    value={confirmpassword} 
-                    onChangeText={setConfirmPassword}
-                    placeholder="Confirm your password"
+                  <PasswordField 
+                    label="Password" 
+                    value={password} 
+                    onChangeText={setPassword}
+                    placeholder="Enter your password"
                     containerStyle={styles.passwordField}
                     labelStyle={styles.inputLabel}
                     inputStyle={{ color: '#355E3B' }}
-                />
-              </View>
-              
+                  />
 
-              <Button
-                title="Register"
-                onPress={handleRegister}
-                backgroundColor="#FFDF78"
-                textColor="#3A4646"
-                fontSize={16}
-                paddingVertical={10}
-                borderRadius={100}
-                width="100%"
-                style={styles.registerButton}
-              />
+                  <View style={styles.confirmPasswordWrapper}>
+                    <PasswordField 
+                      label="Confirm Password" 
+                      value={confirmpassword} 
+                      onChangeText={setConfirmPassword}
+                      placeholder="Confirm your password"
+                      containerStyle={styles.passwordField}
+                      labelStyle={styles.inputLabel}
+                      inputStyle={{ color: '#355E3B' }}
+                    />
+                  </View>
 
-              <View style={styles.loginContainer}>
-                <Text style={styles.loginText}>Already have an account? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                  <Text style={styles.loginLink}>Login Here</Text>
-                </TouchableOpacity>
+                  <Button
+                    title="Register"
+                    onPress={handleRegister}
+                    backgroundColor="#FFDF78"
+                    textColor="#3A4646"
+                    fontSize={16}
+                    paddingVertical={10}
+                    borderRadius={100}
+                    width="100%"
+                    style={styles.registerButton}
+                  />
+
+                  <View style={styles.loginContainer}>
+                    <Text style={styles.loginText}>Already have an account? </Text>
+                    <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                      <Text style={styles.loginLink}>Login Here</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </ImageBackground>
     </View>
   );
@@ -178,6 +191,13 @@ const Register = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   topBackground: {
     position: 'absolute',
@@ -198,6 +218,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
+    paddingBottom: 20,
   },
   contentContainer: {
     paddingHorizontal: 30,
