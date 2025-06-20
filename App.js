@@ -11,6 +11,7 @@ import { enableScreens } from "react-native-screens"; // <-- Enables screen opti
 import StartPage from "./screens/StartPage";
 import Login from "./screens/Login";
 import Register from "./screens/Register";
+import Home from "./screens/Home";
 
 enableScreens(); 
 
@@ -39,6 +40,13 @@ export default function App() {
           <Stack.Screen
             name="Register"
             component={Register}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Home"
+            component={Home}
             options={{
               headerShown: false,
             }}
