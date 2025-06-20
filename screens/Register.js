@@ -62,7 +62,7 @@ const Register = () => {
     try {
       const userData = await signup(firstname, lastname, email, password);
       await AsyncStorage.setItem("userData", JSON.stringify(userData.user));
-      navigation.navigate("Home");
+      navigation.navigate("Login");
     } catch (error) {
       Alert.alert(
         "Registration Failed",
