@@ -2,9 +2,12 @@ import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Linking from 'expo-linking';
+import { Image } from 'react-native';
+
 
 
 const Scanner = () => {
+  const [photoUri, setPhotoUri] = useState(null);
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
 
@@ -35,8 +38,9 @@ const Scanner = () => {
 
 
   const takePicture = async () => {
-    if (cameraRef.current?.takePictureAsync) {
+    if (cameraRef.current) {
       const photo = await cameraRef.current.takePictureAsync({ base64: true });
+      setPhotoUri(photo.uri)
       console.log('Photo URI:', photo.uri);
     } else {
       console.log('Camera reference or method not available');
@@ -45,11 +49,22 @@ const Scanner = () => {
 
   return (
     <View style={styles.container}>
+  {photoUri ? (
+    <>
+      <Image source={{ uri: photoUri }} style={styles.camera} />
+      <TouchableOpacity style={styles.button} onPress={() => setPhotoUri(null)}>
+        <Text style={styles.text}>🔁 Retake Photo</Text>
+      </TouchableOpacity>
+    </>
+  ) : (
+    <>
       <CameraView style={styles.camera} ref={cameraRef} />
       <TouchableOpacity style={styles.button} onPress={takePicture}>
         <Text style={styles.text}>📸 Take Photo</Text>
       </TouchableOpacity>
-    </View>
+    </>
+  )}
+</View>
   );
 };
 
