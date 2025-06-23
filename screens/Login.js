@@ -50,7 +50,7 @@ const Login = () => {
 
     try {
       const userData = await loginUser(email, password);
-      await AsyncStorage.setItem("userData", JSON.stringify(userData.user));
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
       navigation.navigate("Home");
     } catch (error) {
       Alert.alert("Login Failed", error.message || "Invalid email or password");

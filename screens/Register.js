@@ -20,7 +20,7 @@ import Button from "../components/Button";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { validateEmail } from "../utils/authUtil";
-import { signup } from "../api/authAPI";
+import { registerUser } from "../api/authAPI";
 import VectorBackground from "../assets/images/VectorBackground.png";
 
 const { width, height } = Dimensions.get('window');
@@ -60,14 +60,15 @@ const Register = () => {
     }
 
     try {
-      const userData = await signup(firstname, lastname, email, password);
-      await AsyncStorage.setItem("userData", JSON.stringify(userData.user));
+      const userData = await registerUser(firstname, lastname, email, password);
+      console.log(userData)
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
       navigation.navigate("Login");
-    } catch (error) {
-      Alert.alert(
-        "Registration Failed",
-        error.message || "An error occurred during registration"
-      );
+    }catch (error) {
+      console.log("Register error:", error);
+      // If error is not an Error object, show full error string
+      const message = error.message || error.toString() || "An error occurred during registration";
+      Alert.alert("Registration Failed", message);
     }
   };
 

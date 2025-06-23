@@ -1,12 +1,10 @@
-import { BASE_URL } from "../config"; // Now this will resolve correctly
+import { BASE_URL } from "../config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// Login Function
 export const loginUser = async (email, password) => {
   try {
-    const data = {
-      email: email,
-      password: password,
-    };
+    const data = { email, password };
 
     const response = await fetch(`${BASE_URL}/api/login`, {
       method: "POST",
@@ -17,13 +15,46 @@ export const loginUser = async (email, password) => {
     });
 
     const result = await response.json();
-    await AsyncStorage.setItem("token", result.token);
 
     if (!response.ok) {
       throw new Error(result.message || "Login failed");
     }
-    return result;
+
+    // Optional: Save entire user object instead of token
+    await AsyncStorage.setItem("userData", JSON.stringify(result.user));
+
+    return result.user;
   } catch (error) {
     throw new Error("An error occurred during login. Please try again.");
+  }
+};
+
+// Register Function
+export const registerUser = async (firstname, lastname, email, password) => {
+  try {
+    const data = { firstname, lastname, email, password };
+
+    const response = await fetch(`${BASE_URL}/api/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = result.message || JSON.stringify(result) || "Registration failed";
+      throw new Error(errorMessage);
+    }
+
+    // Optional: Save registered user data to local storage
+    await AsyncStorage.setItem("userData", JSON.stringify(result));
+
+    return result;
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+    throw error; // Let frontend handle it
   }
 };

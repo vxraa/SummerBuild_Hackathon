@@ -7,11 +7,12 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Mount login route
-app.use('/api', authRoutes);
+// Routes
+app.use(authRoutes); // /api/register and /api/login
 
 // Your existing scan route
 app.post('/api/scan', async (req, res) => {
@@ -25,7 +26,7 @@ app.post('/api/scan', async (req, res) => {
       payload,
       {
         headers: {
-'X-VERYFI-REQUEST-TIMESTAMP': timestamp.toString(),
+          'X-VERYFI-REQUEST-TIMESTAMP': timestamp.toString(),
           'X-VERYFI-REQUEST-SIGNATURE': signature,
           'CLIENT-ID': process.env.VERYFI_CLIENT_ID,
           Authorization: `apikey ${process.env.VERYFI_API_KEY}`,
@@ -38,4 +39,8 @@ app.post('/api/scan', async (req, res) => {
   }
 });
 
-app.listen(3001, () => console.log('Backend running on http://localhost:3001'));
+// Start the server (one port only)
+app.listen(3000, "192.168.1.153", () => {
+  console.log('Backend running on http://localhost:3000');
+});
+``
