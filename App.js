@@ -12,12 +12,15 @@ import StartPage from "./screens/StartPage";
 import Login from "./screens/Login";
 import Register from "./screens/Register";
 import Home from "./screens/Home";
+import Scanner from "./screens/Scanner";
+
 
 enableScreens(); 
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
@@ -51,6 +54,14 @@ export default function App() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="Scanner"
+            component={Scanner}
+            options={{
+              headerShown: false,
+            }}
+          />
+          
         </Stack.Navigator>
         <Toast />
       </NavigationContainer>
