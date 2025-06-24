@@ -49,7 +49,7 @@ const StartPage = () => {
 
   useEffect(() => {
     if (unlocked) {
-      navigation.navigate("Scanner");
+      navigation.navigate("Expenses");
     }
   }, [unlocked]);
 
@@ -98,7 +98,7 @@ const StartPage = () => {
             duration: 200,
             useNativeDriver: false,
           }).start(() => {
-            navigation.navigate("Scanner");
+            navigation.navigate("Expenses");
           });
           
         } else {

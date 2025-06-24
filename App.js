@@ -13,6 +13,7 @@ import Login from "./screens/Login";
 import Register from "./screens/Register";
 import Home from "./screens/Home";
 import Scanner from "./screens/Scanner";
+import Expenses from "./screens/Expenses";
 
 
 enableScreens(); 
@@ -61,6 +62,14 @@ export default function App() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="Expenses"
+            component={Expenses}
+            options={{
+              headerShown: false,
+            }}
+          />
+          
           
         </Stack.Navigator>
         <Toast />
