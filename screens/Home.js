@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import NavBar from "../components/NavBar"; // <- updated path
+import NavBar from "../components/NavBar"; 
 
 export default function Home() {
   return (

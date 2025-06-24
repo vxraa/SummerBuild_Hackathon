@@ -59,9 +59,13 @@ const NavBar = () => {
   // Vertical offset for selected icon
   const selectedIconOffset = -11; 
 
-  const handlePress = (index, name) => {
+  const handlePress = (index, screenName) => {
+    // Update the active index immediately and force a re-render
     setActiveIndex(index);
-    navigation.navigate(name);
+    // Use setTimeout to ensure state is updated before navigation
+    setTimeout(() => {
+      navigation.navigate(screenName);
+    }, 0);
   };
 
   return (
@@ -103,7 +107,7 @@ const NavBar = () => {
                 ...marginStyle,
               }
             ]}
-            onPress={() => handlePress(index, tab.name)}
+            onPress={() => handlePress(index, tab.screen)}
             activeOpacity={0.7}
           >
             <View style={styles.iconContainer}>
@@ -128,7 +132,6 @@ const NavBar = () => {
                   { 
                     width: iconDimensions[tab.name]?.width || 26, 
                     height: iconDimensions[tab.name]?.height || 26,
-
                     transform: isActive ? [{ translateY: selectedIconOffset }] : [],
                   },
                   isActive && styles.activeIcon,
@@ -143,10 +146,10 @@ const NavBar = () => {
 };
 
 const tabs = [
-  { name: "Home", icon: HomeIcon },
-  { name: "Expenses", icon: BudgetIcon },
-  { name: "Scanner", icon: ScannerIcon },
-  { name: "Account", icon: ProfileIcon },
+  { name: "Home", icon: HomeIcon, screen: "Home" },
+  { name: "Expenses", icon: BudgetIcon, screen: "Expenses" },
+  { name: "Scanner", icon: ScannerIcon, screen: "Scanner" },
+  { name: "Account", icon: ProfileIcon, screen: "Home" },
 ];
 
 const styles = StyleSheet.create({
@@ -158,7 +161,7 @@ const styles = StyleSheet.create({
     overflow: "visible",
     elevation: 10,
     width: '100%',
-    justifyContent: 'space-between', // This helps with even spacing
+    justifyContent: 'space-between',
   },
   tabButton: {
     alignItems: "center",
@@ -184,6 +187,7 @@ const styles = StyleSheet.create({
   },
   selectedGreen: {
     position: 'absolute',
+    zIndex: 1,
   },
 });
 
