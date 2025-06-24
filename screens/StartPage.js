@@ -98,7 +98,9 @@ const StartPage = () => {
             duration: 200,
             useNativeDriver: false,
           }).start(() => {
+
             navigation.navigate("Expenses");
+
           });
           
         } else {
