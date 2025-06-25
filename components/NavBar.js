@@ -149,7 +149,7 @@ const tabs = [
   { name: "Home", icon: HomeIcon, screen: "Home" },
   { name: "Expenses", icon: BudgetIcon, screen: "Expenses" },
   { name: "Scanner", icon: ScannerIcon, screen: "Scanner" },
-  { name: "Account", icon: ProfileIcon, screen: "Home" },
+  { name: "Account", icon: ProfileIcon, screen: "Account" },
 ];
 
 const styles = StyleSheet.create({
