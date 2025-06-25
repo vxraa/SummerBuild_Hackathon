@@ -41,7 +41,7 @@ export default function Home() {
           console.log("Parsed user ID:", userData.id || userData?.user?.id);
 
           try {
-            const fetchedBudget = await getBudgetByUserId(userData.id);
+            const fetchedBudget = await getBudgetByUserId(userData.id || userData?.user?.id);
             console.log("Fetched budget:", fetchedBudget);
             setBudget(fetchedBudget);
           } catch (e) {
@@ -49,7 +49,7 @@ export default function Home() {
           }
 
           try {
-            const expenses = await getExpensesByUserId(userData.id);
+            const expenses = await getExpensesByUserId(userData.id || userData?.user?.id);
             console.log("Fetched expenses:", expenses);
             const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
             setSpent(totalSpent);
@@ -67,7 +67,7 @@ export default function Home() {
         console.log("Fetched budget:", fetchedBudget);
         setBudget(fetchedBudget);
 
-        const expenses = await getExpensesByUserId(userData.id);
+        const expenses = await getExpensesByUserId(userId);
         const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
         setSpent(totalSpent);
       } catch (error) {

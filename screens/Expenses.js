@@ -110,11 +110,13 @@ const Expenses = () => {
           await AsyncStorage.setItem("userData", JSON.stringify(storedUserData));
         }
         const userData = JSON.parse(storedUserData);
-        setUserId(userData.user.id);
+        const userId = userData.user?.id || userData.id;
+        if (!userId) throw new Error("User ID not found");
+        setUserId(userId);
 
         const [userBudget, userExpenses] = await Promise.all([
-          getBudgetByUserId(userData.id),
-          getExpensesByUserId(userData.id)
+          getBudgetByUserId(userId),
+          getExpensesByUserId(userId)
         ]);
 
         setBudget(userBudget);

@@ -107,7 +107,9 @@ const AddExpenseModal = ({ visible, onClose, onAdd }) => {
         }
 
         const userData = JSON.parse(storedUserData);
-        setUserId(userData.id);
+        const userId = userData.user?.id || userData.id;
+        if (!userId) throw new Error("User ID not found");
+        setUserId(userId);
         console.log(userData);
       } catch (error) {
         console.error("Failed to load user data:", error);
