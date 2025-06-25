@@ -21,9 +21,10 @@ export const loginUser = async (email, password) => {
     }
 
     // Optional: Save entire user object instead of token
-    await AsyncStorage.setItem("userData", JSON.stringify(result.user));
+    await AsyncStorage.setItem("userData", JSON.stringify(result));
+    console.log("userData", result);
 
-    return result.user;
+    return result;
   } catch (error) {
     throw new Error("An error occurred during login. Please try again.");
   }
@@ -57,4 +58,10 @@ export const registerUser = async (firstname, lastname, email, password) => {
     console.error("REGISTER ERROR:", error);
     throw error; // Let frontend handle it
   }
+};
+
+export const getUserIdFromStorage = async () => {
+  const stored = await AsyncStorage.getItem('userData');
+  const data = JSON.parse(stored);
+  return data?.user?.id;
 };

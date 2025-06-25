@@ -1,9 +1,12 @@
+
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const { createSignature } = require('./veryfihelper');
 const authRoutes = require('./routes/auth');
+const { URL } = require('./config');
+const {insertScan}= require('./userDB')
 
 const app = express();
 
@@ -14,33 +17,39 @@ app.use(express.json());
 // Routes
 app.use(authRoutes); // /api/register and /api/login
 
-// Your existing scan route
+app.get('/', (req, res) => {
+  res.send('API is running');
+});
+
+const uploadRoutes = require('./routes/upload');
+app.use('/api', uploadRoutes);
+
 app.post('/api/scan', async (req, res) => {
-  const payload = req.body;
-  const timestamp = Date.now();
-  const signature = createSignature(process.env.VERYFI_CLIENT_SECRET, payload, timestamp);
+  const { user_id, vendor, date, total, full_data } = req.body;
+
+  // Optional: you can validate these fields before continuing
+  if (!user_id || !vendor || !date || !total) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
 
   try {
-    const result = await axios.post(
-      'https://api.veryfi.com/api/v8/partner/documents/',
-      payload,
-      {
-        headers: {
-          'X-VERYFI-REQUEST-TIMESTAMP': timestamp.toString(),
-          'X-VERYFI-REQUEST-SIGNATURE': signature,
-          'CLIENT-ID': process.env.VERYFI_CLIENT_ID,
-          Authorization: `apikey ${process.env.VERYFI_API_KEY}`,
-        }
-      }
-    );
-    res.json(result.data);
+    // Save scan to your database
+    const result = insertScan.run(user_id, vendor, date, total, full_data);
+    const scanId = result.lastInsertRowid;
+
+    // Optionally: If you still want to call Veryfi API from backend, put it here.
+    // (But usually, this should already have been done from the frontend.)
+
+    // Respond success
+    res.status(201).json({ success: true, scanId });
   } catch (err) {
-    res.status(500).json({ error: err.message, detail: err.response?.data });
+    console.error('Error saving to DB:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
 // Start the server (one port only)
-app.listen(3000, "192.168.1.153", () => {
+app.listen(8081, URL, () => {
   console.log('Backend running on http://localhost:3000');
 });
 ``
