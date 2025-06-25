@@ -9,6 +9,7 @@ import {
   ActivityIndicator
 } from "react-native";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import SetBudgetModal from "./SetBudgetModal";
 import AddExpenseModal from "./AddExpenseModal";
 import * as Progress from "react-native-progress";
 import RoundedSquareIcon from "../components/RoundedSquareIcon";
@@ -20,7 +21,6 @@ import { PieChart } from "react-native-chart-kit";
 import { getBudgetByUserId, setBudgetByUserId } from "../api/tripsAPI";
 import { Swipeable } from "react-native-gesture-handler";
 import NavBar from "../components/NavBar";
-import SetBudgetModal from "./SetBudgetModal";  
 
 const iconData = [
   {
