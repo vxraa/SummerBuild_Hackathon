@@ -5,46 +5,22 @@ import {
   StyleSheet,
   Dimensions,
   ScrollView,
-  Alert,
-  Animated,
-  Easing,
   TouchableOpacity,
-  Image,
-  Modal,
-  FlatList,
+  ActivityIndicator
 } from "react-native";
-import {
-  useFonts,
-  Poppins_400Regular,
-  Poppins_500Medium,
-  Poppins_600SemiBold,
-  Poppins_700Bold,
-} from '@expo-google-fonts/poppins';
-import { Picker } from "@react-native-picker/picker";
-import Button from "../components/Button";
+import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import AddExpenseModal from "./AddExpenseModal";
 import * as Progress from "react-native-progress";
 import RoundedSquareIcon from "../components/RoundedSquareIcon";
 import Toast from "react-native-toast-message";
-import {
-  addExpense,
-  fetchExpenses,
-  deleteExpense,
-  getExpensesByTripId,
-} from "../api/expensesAPI";
+import { addExpense, deleteExpense, getExpensesByUserId } from "../api/expensesAPI";
 import { fetchUserData } from "../api/authAPI";
-import {
-  getTripsByUserId,
-  setBudgetByTripId,
-  getBudgetByTripId,
-} from "../api/tripsAPI";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PieChart } from "react-native-chart-kit";
-import SetBudgetModal from "./SetBudgetModal";
+import { getBudgetByUserId, setBudgetByUserId } from "../api/tripsAPI";
 import { Swipeable } from "react-native-gesture-handler";
 import NavBar from "../components/NavBar";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+import SetBudgetModal from "./SetBudgetModal";  
 
 const iconData = [
   {
@@ -105,13 +81,14 @@ const iconData = [
   },
 ];
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+
 const Expenses = () => {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
-    Poppins_500Medium,
     Poppins_600SemiBold,
     Poppins_700Bold,
-    });
+  });
 
   const [expenses, setExpenses] = useState([]);
   const [budget, setBudget] = useState(0);
@@ -119,121 +96,117 @@ const Expenses = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState(null);
   const [summaryVisible, setSummaryVisible] = useState(false);
-  const slideAnim = useState(new Animated.Value(0))[0];
   const [budgetModalVisible, setBudgetModalVisible] = useState(false);
   const [pieChartData, setPieChartData] = useState([]);
-  const [selectedTripId, setSelectedTripId] = useState(-1);
-  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const colorPalette = [
-    "#FF6347",
-    "#FFD700",
-    "#1E90FF",
-    "#FF69B4",
-    "#32CD32",
-    "#20B2AA",
-    "#8A2BE2",
-    "#FF4500",
-  ];
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        setLoading(true);
+        let storedUserData = await AsyncStorage.getItem("userData");
+        if (!storedUserData) {
+          storedUserData = await fetchUserData();
+          await AsyncStorage.setItem("userData", JSON.stringify(storedUserData));
+        }
+        const userData = JSON.parse(storedUserData);
+        setUserId(userData.id);
+
+        const [userBudget, userExpenses] = await Promise.all([
+          getBudgetByUserId(userData.id),
+          getExpensesByUserId(userData.id)
+        ]);
+
+        setBudget(userBudget);
+        setExpenses(userExpenses);
+        setTotalSpent(userExpenses.reduce((sum, exp) => sum + exp.amount, 0));
+        updatePieChartData(userExpenses);
+      } catch (error) {
+        console.error("Initialization error:", error);
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to load data",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initialize();
+  }, []);
+
+  const updatePieChartData = (expenses) => {
+    const categoryTotals = expenses.reduce((acc, item) => {
+      acc[item.category] = (acc[item.category] || 0) + item.amount;
+      return acc;
+    }, {});
+
+    const pieData = Object.entries(categoryTotals).map(([name, population], index) => ({
+      name,
+      population,
+      color: `hsl(${index * 45}, 70%, 50%)`,
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 15
+    }));
+
+    setPieChartData(pieData);
+  };
+
+  const handleAddExpense = async (expense) => {
+    try {
+      const newExpense = await addExpense({ ...expense, user_id: userId });
+      const updatedExpenses = [...expenses, newExpense];
+      setExpenses(updatedExpenses);
+      setTotalSpent(totalSpent + newExpense.amount);
+      updatePieChartData(updatedExpenses);
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Expense added successfully",
+      });
+      return newExpense;
+    } catch (error) {
+      console.error("Error adding expense:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to add expense",
+      });
+      throw error;
+    }
+  };
+
+  const handleSetBudget = async (newBudget) => {
+    try {
+      await setBudgetByUserId(userId, newBudget);
+      setBudget(newBudget);
+      Toast.show({
+        type: "success",
+        text1: "Budget Updated",
+        text2: "Your budget has been updated successfully"
+      });
+    } catch (error) {
+      console.error("Error setting budget:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to update budget"
+      });
+    } finally {
+      setBudgetModalVisible(false);
+    }
+  };
 
   const getIconForCategory = (category) => {
     const icon = iconData.find(
       (item) => item.label.toLowerCase() === category.toLowerCase()
     );
-    return (
-      icon || {
-        iconName: "cash-outline",
-        backgroundColor: "#e6fae7",
-        iconColor: "#418743",
-      }
-    );
-  };
-
-  const updatePieChartData = (fetchedExpenses) => {
-    const categoryTotals = fetchedExpenses.reduce((acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = 0;
-      }
-      acc[item.category] += item.amount;
-      return acc;
-    }, {});
-
-    const pieChartData = Object.entries(categoryTotals).map(
-      ([category, amount], index) => {
-        return {
-          name: category,
-          population: amount,
-          color: colorPalette[index % colorPalette.length],
-          legendFontColor: "#FFF",
-          legendFontSize: 15,
-        };
-      }
-    );
-    setPieChartData(pieChartData);
-  };
-
-  useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        let storedUserData = await AsyncStorage.getItem("userData");
-        if (!storedUserData) {
-          storedUserData = await fetchUserData();
-          await AsyncStorage.setItem(
-            "userData",
-            JSON.stringify(storedUserData)
-          );
-        }
-        const userData = JSON.parse(storedUserData);
-        setUserId(userData.id);
-
-        const tripsData = await getTripsByUserId(userData.id);
-        setTrips(tripsData);
-      } catch (err) {
-        console.error("Error fetching trips:", err);
-      }
+    return icon || {
+      iconName: "cash-outline",
+      backgroundColor: "#e6fae7",
+      iconColor: "#418743",
     };
-
-    fetchTrips();
-  }, []);
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  const populateExpenses = async (tripId) => {
-    try {
-      const tripBudget = await getBudgetByTripId(tripId);
-      setBudget(tripBudget);
-
-      const tripExpenses = await getExpensesByTripId(tripId);
-      setExpenses(tripExpenses);
-      const totalSpentAmount = tripExpenses.reduce(
-        (sum, expense) => sum + expense.amount,
-        0
-      );
-      setTotalSpent(totalSpentAmount);
-      updatePieChartData(tripExpenses);
-    } catch (error) {
-      console.error("Error fetching budget:", error);
-      Alert.alert("Error", "Failed to fetch budget. Please try again.");
-    }
-  };
-
-  const handleAddExpense = async (expense) => {
-    setExpenses([...expenses, expense]);
-    setTotalSpent((prevTotal) => prevTotal + expense.amount);
-    expense.trips_id = selectedTripId;
-
-    try {
-      const result = await addExpense(expense);
-      return result;
-    } catch (error) {
-      console.error("Error adding expense:", error);
-      Alert.alert(
-        "Error",
-        "An error occurred while adding the expense. Please try again."
-      );
-    }
   };
 
   const renderRightActions = (id) => (
@@ -248,56 +221,37 @@ const Expenses = () => {
   const handleDeleteExpense = async (id) => {
     try {
       await deleteExpense(id);
-      const updatedExpenses = expenses.filter((expense) => expense.id !== id);
+      const updatedExpenses = expenses.filter((exp) => exp.id !== id);
       setExpenses(updatedExpenses);
-      const deletedExpense = expenses.find((expense) => expense.id === id);
-      if (deletedExpense) {
-        setTotalSpent((prevTotal) => prevTotal - deletedExpense.amount);
-      }
+      setTotalSpent(updatedExpenses.reduce((sum, exp) => sum + exp.amount, 0));
       updatePieChartData(updatedExpenses);
       Toast.show({
         type: "success",
         text1: "Deleted",
-        text2: "Expense deleted successfully.",
+        text2: "Expense removed successfully",
       });
     } catch (error) {
-      console.error("Error deleting expense:", error.message);
-      Alert.alert("Error", "Failed to delete expense. Please try again later.");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to delete expense",
+      });
     }
   };
 
   const toggleSummary = () => {
     setSummaryVisible(!summaryVisible);
-    Animated.timing(slideAnim, {
-      toValue: summaryVisible ? 0 : screenHeight * 0.3,
-      duration: 400,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handleSetBudget = async (budget) => {
-    try {
-      if (selectedTripId !== -1) {
-        await setBudgetByTripId(selectedTripId, budget);
-        setBudget(budget);
-        Toast.show({
-          type: "success",
-          text1: "Success",
-          text2: "Budget Set successfully.",
-        });
-      }
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        error.message || "Failed to set budget. Please try again."
-      );
-    } finally {
-      setBudgetModalVisible(false);
-    }
   };
 
   const progress = budget ? totalSpent / budget : 0;
+
+  if (!fontsLoaded || loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1E3C1F" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -313,7 +267,6 @@ const Expenses = () => {
             <TouchableOpacity
               style={styles.setBudgetButton}
               onPress={() => setBudgetModalVisible(true)}
-              disabled={selectedTripId === -1}
             >
               <Text style={styles.setBudgetText}>Set a Budget</Text>
             </TouchableOpacity>
@@ -335,7 +288,9 @@ const Expenses = () => {
             style={styles.viewSummaryButton}
             onPress={toggleSummary}
           >
-            <Text style={styles.viewSummaryText}>View Summary</Text>
+            <Text style={styles.viewSummaryText}>
+              {summaryVisible ? "Hide Summary" : "View Summary"}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -418,6 +373,7 @@ const Expenses = () => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onAdd={handleAddExpense}
+        userId={userId}
       />
 
       <SetBudgetModal
@@ -427,6 +383,7 @@ const Expenses = () => {
       />
 
       <NavBar />
+      <Toast />
     </View>
   );
 };
@@ -436,6 +393,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFF",
     paddingTop: screenHeight * 0.05,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF",
   },
   headerContainer: {
     paddingHorizontal: 20,
@@ -471,7 +434,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Poppins_600SemiBold",
     color: "#FFF",
-    bottom: 12,
   },
   budgetInfo: {
     width: "100%",
@@ -571,7 +533,6 @@ const styles = StyleSheet.create({
     width: '50%',
     alignItems: "center",
     marginTop: 20,
-    
   },
   addExpenseText: {
     fontSize: 14,

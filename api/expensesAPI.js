@@ -1,23 +1,23 @@
-// Import necessary modules
 import BASE_URL from "../config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const addExpense = async (expenseData) => {
   try {
-    // Get the JWT token from AsyncStorage
     const token = await AsyncStorage.getItem("token");
-
     if (!token) {
       throw new Error("User is not authenticated");
     }
 
-    const response = await fetch(`${BASE_URL}/api/add-expenses`, {
+    const response = await fetch(`${BASE_URL}/api/expenses`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(expenseData), // Send the expense data as JSON
+      body: JSON.stringify({
+        ...expenseData,
+        user_id: expenseData.user_id // Now using user_id instead of trip_id
+      }),
     });
 
     const result = await response.json();
@@ -26,104 +26,24 @@ export const addExpense = async (expenseData) => {
       throw new Error(result.message || "Failed to add expense");
     }
 
-    console.log("Expense added successfully:", result);
     return result;
   } catch (error) {
     console.error("Error adding expense:", error);
-    throw new Error(
-      "An error occurred while adding the expense. Please try again."
-    );
+    throw error;
   }
 };
 
-export const fetchExpenses = async (userId) => {
+export const getExpensesByUserId = async (userId) => {
   try {
-    // Get the JWT token from AsyncStorage
     const token = await AsyncStorage.getItem("token");
-
     if (!token) {
       throw new Error("User is not authenticated");
     }
 
-    const response = await fetch(`${BASE_URL}/api/get-expenses`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ user_id: userId }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json(); // Attempt to parse error details if available
-      throw new Error(
-        `Failed to fetch expenses: ${errorData?.message || response.status}`
-      );
-    }
-
-    const result = await response.json();
-
-    // Verify structure: ensure `result.message` is an array before returning
-    if (!Array.isArray(result.message)) {
-      throw new Error("Unexpected response format: expenses data is not an array.");
-    }
-
-    console.log("Fetched expenses:", result.message); // Log only the array if it's correct
-    return result.message; // Return only the message (array of expenses)
-  } catch (error) {
-    console.error("Error fetching expenses:", error);
-    throw new Error(
-      error.message || "An error occurred while fetching expenses. Please try again."
-    );
-  }
-};
-
-export const deleteExpense = async (expenseId) => {
-  console.log("expenseId:", expenseId);
-  try {
-    // Get the JWT token from AsyncStorage
-    const token = await AsyncStorage.getItem("token");
-
-    if (!token) {
-      throw new Error("User is not authenticated");
-    }
-
-    // Construct the delete URL with the expenseId
-    const response = await fetch(`${BASE_URL}/api/delete-expense/${expenseId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    // Parse the response
-    const result = await response.json();
-
-    // Check for errors from the server
-    if (!response.ok) {
-      throw new Error(result.message || "Failed to delete expense");
-    }
-
-    console.log("Expense deleted successfully:", result);
-    return result;
-  } catch (error) {
-    console.error("Error deleting expense:", error);
-    throw new Error(
-      "An error occurred while deleting the expense. Please try again."
-    );
-  }
-};
-
-
-// expensesAPI.js
-export const getExpensesByTripId = async (tripId) => {
-  try {
-    const url = `${BASE_URL}/api/get-expenses/trip/${tripId}`; // Adjust BASE_URL to your API base URL
-
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}/api/users/${userId}/expenses`, {
       method: "GET",
       headers: {
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -131,10 +51,35 @@ export const getExpensesByTripId = async (tripId) => {
       throw new Error("Failed to fetch expenses");
     }
 
-    const expenses = await response.json();
-    return expenses.data; // Return the expenses data
+    const result = await response.json();
+    return Array.isArray(result) ? result : [];
   } catch (error) {
     console.error("Error fetching expenses:", error);
-    throw new Error("An error occurred while fetching expenses. Please try again.");
+    throw error;
+  }
+};
+
+export const deleteExpense = async (expenseId) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      throw new Error("User is not authenticated");
+    }
+
+    const response = await fetch(`${BASE_URL}/api/expenses/${expenseId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete expense");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting expense:", error);
+    throw error;
   }
 };
