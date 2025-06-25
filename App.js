@@ -14,6 +14,9 @@ import Register from "./screens/Register";
 import Home from "./screens/Home";
 import Scanner from "./screens/Scanner";
 import Expenses from "./screens/Expenses";
+import Account from "./screens/Account";
+import Profile from "./screens/Profile";
+import EditProfile from "./screens/EditProfile";
 
 
 enableScreens(); 
@@ -65,6 +68,27 @@ export default function App() {
           <Stack.Screen
             name="Expenses"
             component={Expenses}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Account"
+            component={Account}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={Profile}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="EditProfile"
+            component={EditProfile}
             options={{
               headerShown: false,
             }}
