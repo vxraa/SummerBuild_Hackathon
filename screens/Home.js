@@ -30,14 +30,41 @@ export default function Home() {
     const initialize = async () => {
       try {
         let storedUserData = await AsyncStorage.getItem("userData");
+        console.log("Raw storedUserData:", storedUserData);
+        const userData = JSON.parse(storedUserData);
+        console.log("userdata:", userData);        
+
         if (!storedUserData) {
           storedUserData = await fetchUserData();
+          console.log("Raw storedUserData:", storedUserData);
+          const userData = JSON.parse(storedUserData);
+          console.log("Parsed user ID:", userData.id || userData?.user?.id);
+
+          try {
+            const fetchedBudget = await getBudgetByUserId(userData.id);
+            console.log("Fetched budget:", fetchedBudget);
+            setBudget(fetchedBudget);
+          } catch (e) {
+            console.log("Budget fetch failed", e);
+          }
+
+          try {
+            const expenses = await getExpensesByUserId(userData.id);
+            console.log("Fetched expenses:", expenses);
+            const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            setSpent(totalSpent);
+          } catch (e) {
+            console.log("Expense fetch failed", e);
+          }
           await AsyncStorage.setItem("userData", JSON.stringify(storedUserData));
         }
-        const userData = JSON.parse(storedUserData);
-        setUserId(userData.id);
 
-        const fetchedBudget = await getBudgetByUserId(userData.id);
+        const userId = userData.user?.id || userData.id;
+        if (!userId) throw new Error("User ID not found");
+        setUserId(userId);
+
+        const fetchedBudget = await getBudgetByUserId(userId);
+        console.log("Fetched budget:", fetchedBudget);
         setBudget(fetchedBudget);
 
         const expenses = await getExpensesByUserId(userData.id);
@@ -52,6 +79,7 @@ export default function Home() {
   }, []);
 
   const handleSetBudget = async (newBudget) => {
+    console.log("newbudget:", newBudget);
     try {
       await setBudgetByUserId(userId, newBudget);
       setBudget(newBudget);

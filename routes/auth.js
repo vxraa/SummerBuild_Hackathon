@@ -1,6 +1,12 @@
 const express = require('express');
 const { db } = require('../userDB');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+const authenticateToken = require('./authenticateToken.js')
+require('dotenv').config();
+
+
+
 
 
 
@@ -31,11 +37,102 @@ router.post('/api/login', (req, res) => {
   const user = stmt.get(email, password);
 
   if (!user) {
-    return res.status(401).json({ message: 'Invalid credentials' }); //if email is not yet registered
+    return res.status(401).json({ message: 'Invalid credentials' });
   }
 
+  // Exclude password from response
   const { password: _, ...safeUser } = user;
-  res.json({ user: safeUser });
+  const SECRET_KEY = process.env.JWT_SECRET;
+
+
+  // ✅ Generate JWT token
+  const token = jwt.sign(
+    { id: safeUser.id, email: safeUser.email }, // payload
+    SECRET_KEY,
+    { expiresIn: '1d' } // optional: expires in 1 day
+  );
+
+  // ✅ Send back user and token
+  res.json({ user: safeUser, token });
 });
+
+// route for user data
+router.get("/api/user/:id", authenticateToken, (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const stmt = db.prepare("SELECT id, firstname, lastname, email, phone, gender, dob, budget FROM users WHERE id = ?");
+    const user = stmt.get(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    console.log("userdata from auth:", user);
+
+    res.json(user);
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ message: "Failed to fetch user data" });
+  }
+});
+
+//route for expenses
+// POST - Set user's budget
+router.post("/api/users/:id/budget", authenticateToken, (req, res) => {
+
+  const userId = parseInt(req.params.id);
+  console.log("userId: ", userId);
+  const { budget } = req.body;
+  console.log("budget", budget);
+
+  if (!budget && budget !== 0) {
+    return res.status(400).json({ message: "Budget is required" });
+  }
+
+  try {
+    const stmt = db.prepare("UPDATE users SET budget = ? WHERE id = ?");
+    const result = stmt.run(budget, userId);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "Budget updated successfully", budget });
+  } catch (err) {
+    console.error("Error setting budget:", err);
+    res.status(500).json({ message: "Failed to update budget" });
+  }
+});
+
+// router.get("/api/users/:id/expenses", authenticateToken, (req, res) => {
+router.get("/api/users/:id/expenses", (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const stmt = db.prepare("SELECT * FROM scans WHERE user_id = ?");
+    const expenses = stmt.all(userId);
+
+    res.json(expenses);
+  } catch (err) {
+    console.error("Error fetching expenses:", err);
+    res.status(500).json({ message: "Failed to fetch expenses" });
+  }
+});
+//route for budget
+router.get("/api/users/:id/budget", authenticateToken, (req, res) => {
+  const userId = req.params.id;
+
+  const stmt = db.prepare("SELECT budget FROM users WHERE id = ?");
+  const result = stmt.get(userId);
+
+  if (!result) {
+    return res.status(404).json({ message: "Budget not found" });
+  }
+
+  res.json(result.budget); // or: res.json({ budget: result.budget })
+});
+
+
+
 
 module.exports = router;

@@ -110,7 +110,7 @@ const Expenses = () => {
           await AsyncStorage.setItem("userData", JSON.stringify(storedUserData));
         }
         const userData = JSON.parse(storedUserData);
-        setUserId(userData.id);
+        setUserId(userData.user.id);
 
         const [userBudget, userExpenses] = await Promise.all([
           getBudgetByUserId(userData.id),

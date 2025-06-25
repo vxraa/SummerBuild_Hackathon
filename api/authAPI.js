@@ -21,7 +21,9 @@ export const loginUser = async (email, password) => {
     }
 
     // Optional: Save entire user object instead of token
-    await AsyncStorage.setItem("userData", JSON.stringify(result));
+    await AsyncStorage.setItem("token", result.token);
+    console.log("Stored token:", result.token);
+    await AsyncStorage.setItem("userData", JSON.stringify(result.user));
     console.log("userData", result);
 
     return result;
@@ -58,6 +60,27 @@ export const registerUser = async (firstname, lastname, email, password) => {
     console.error("REGISTER ERROR:", error);
     throw error; // Let frontend handle it
   }
+};
+
+export const fetchUserData = async () => {
+  const userDataString = await AsyncStorage.getItem("userData");
+  if (!userDataString) throw new Error("No userData in storage");
+
+  const userData = JSON.parse(userDataString);
+  const userId = userData?.user?.id || userData?.id;
+  const token = await AsyncStorage.getItem("token");
+
+  if (!userId || !token) throw new Error("Missing user ID or token");
+
+  const response = await fetch(`${BASE_URL}/api/user/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch user data");
+
+  return await response.json();
 };
 
 export const getUserIdFromStorage = async () => {

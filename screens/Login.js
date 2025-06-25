@@ -19,6 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { validateEmail } from "../utils/authUtil";
 import { loginUser } from "../api/authAPI";
 import VectorBackground from "../assets/images/VectorBackground.png";
+import { BASE_URL } from "../config";
 
 const { width, height } = Dimensions.get('window');
 
@@ -37,6 +38,11 @@ const Login = () => {
     return null;
   }
 
+  fetch(`${BASE_URL}/api`)
+  .then(res => res.text())
+  .then(console.log)
+  .catch(console.error);
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please enter both email and password");
@@ -50,8 +56,9 @@ const Login = () => {
 
     try {
       const userData = await loginUser(email, password);
+      
       await AsyncStorage.setItem("userData", JSON.stringify(userData));
-      console.log(userData)
+      console.log("login: " ,userData)
       navigation.navigate("Home");
     } catch (error) {
       Alert.alert("Login Failed", error.message || "Invalid email or password");

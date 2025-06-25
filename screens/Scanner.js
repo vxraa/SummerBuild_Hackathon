@@ -5,6 +5,7 @@ import * as Linking from 'expo-linking';
 import { useNavigation } from '@react-navigation/native'; // ✅ Import useNavigation
 import { BASE_URL } from '../config';
 import { getUserIdFromStorage } from '../api/authAPI';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const Scanner = () => {
   // Your existing state
@@ -13,6 +14,20 @@ const Scanner = () => {
   const [permission, requestPermission] = useCameraPermissions();
   const [saveStatus, setSaveStatus] = useState(''); 
   const [receiptData, setReceiptData] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [category, setCategory] = useState(null);
+
+
+  const [items, setItems] = useState([
+  { label: 'Shopping', value: 'shopping' },
+  { label: 'Lodging', value: 'lodging' },
+  { label: 'Food', value: 'food' },
+  { label: 'Transport', value: 'transport' },
+  { label: 'Activities', value: 'activities' },
+  { label: 'Health', value: 'health' },
+  { label: 'Souvenirs', value: 'souvenirs' },
+  { label: 'Others', value: 'others' },
+]);
 
   const cameraRef = useRef(null);
 
@@ -48,7 +63,6 @@ const Scanner = () => {
   }
 };
 
-  // ... your existing code
 
   const sendPhotoToVeryfi = async (photo) => {
     try {
@@ -59,8 +73,6 @@ const Scanner = () => {
         setSaveStatus('User not logged in, cannot save receipt');
         return;
       }
-
-      // Prepare formData and send to Veryfi (omitted for brevity)
 
       const fileUri = photo.uri;
       const fileName = fileUri.split('/').pop();
@@ -84,6 +96,10 @@ const Scanner = () => {
       });
 
       const result = await response.json();
+
+      if (!category){
+        console.error("No category inputted")
+      }
 
       if (!response.ok) {
         console.error('Veryfi Error:', result);
@@ -111,6 +127,7 @@ const Scanner = () => {
         vendor: result.vendor?.name,
         date: formattedDate,
         total: calculatedTotal,
+        category: category,
         full_data: JSON.stringify(result),
       });
       const backendResponse = await fetch(`${BASE_URL}/api/scan`, {
@@ -121,6 +138,7 @@ const Scanner = () => {
           vendor: result.vendor?.name || 'Unknown Vendor',
           date: formattedDate,
           total: calculatedTotal,
+          category: category,
           full_data: JSON.stringify(result),
         }),
       });
@@ -143,22 +161,41 @@ const Scanner = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* ✅ Back Button at Top-Left */}
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>← Back</Text>
-      </TouchableOpacity>
-      {photoUri ? (
-        <>
-          <Image source={{ uri: photoUri }} style={styles.camera} />
-          <View style={styles.buttonRow}>
+              <View style={styles.container}>
+            
+                {/* ✅ Back Button at Top-Left */}
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                  <Text style={styles.backButtonText}>← Back</Text>
+                </TouchableOpacity>
+                {photoUri ? (
+                  <>
+                    <Image source={{ uri: photoUri }} style={styles.camera} />
+                    <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.button} onPress={() => setPhotoUri(null)}>
               <Text style={styles.text}>🔁 Retake Photo</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => sendPhotoToVeryfi(photoObject)}>
-              <Text style={styles.text}>✅ Submit Photo</Text>
-            </TouchableOpacity>
           </View>
+
+          <Text style={{ marginTop: 10 }}>Select Category:</Text>
+        <View style={{ width: '80%', zIndex: 1000, marginBottom: 20 }}>
+          <DropDownPicker
+            open={open}
+            value={category}
+            items={items}
+            setOpen={setOpen}
+            setValue={setCategory}
+            setItems={setItems}
+            placeholder="Select a category..."
+            containerStyle={{ height: 50 }}
+            style={{ backgroundColor: '#fff' }}
+            dropDownContainerStyle={{ backgroundColor: '#eee' }}
+          />
+        </View>
+
+          <TouchableOpacity style={styles.button} onPress={() => sendPhotoToVeryfi(photoObject)}>
+            <Text style={styles.text}>✅ Submit Photo</Text>
+          </TouchableOpacity>
+
 
           {/* Display receipt info */}
           {receiptData && (
@@ -192,12 +229,12 @@ const Scanner = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  camera: { flex: 1, width: '100%' },
+  camera: {  width: '100%', height:300 },
   button: {
     backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    marginHorizontal: 10,
+    padding: 10,
+    borderRadius: 0,  
+    marginHorizontal: 0,
     marginTop: 10,
   },
   buttonRow: {

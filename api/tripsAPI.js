@@ -1,15 +1,17 @@
 import BASE_URL from "../config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
+
 // User Budget Functions
 export const getBudgetByUserId = async (userId) => {
   try {
     const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      throw new Error("User is not authenticated");
-    }
-
-    const response = await fetch(`${BASE_URL}/api/users/${userId}/budget`, {
+    const url = `${BASE_URL}/api/users/${userId}/budget`;
+    
+    console.log("Attempting fetch to:", url); // Log the exact URL
+    
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -17,14 +19,19 @@ export const getBudgetByUserId = async (userId) => {
       },
     });
 
+    console.log("Response status:", response.status);
+    
     if (!response.ok) {
-      throw new Error("Failed to fetch budget");
+      const errorData = await response.text();
+      console.error("Full error response:", errorData);
+      throw new Error(`HTTP ${response.status}: ${errorData}`);
     }
 
-    const { budget } = await response.json();
-    return budget || 0;
+    const data = await response.json();
+    console.log("data:",data);
+    return data || 0;
   } catch (error) {
-    console.error("Error fetching budget:", error);
+    console.error("Full fetch error:", error);
     throw error;
   }
 };
@@ -32,6 +39,7 @@ export const getBudgetByUserId = async (userId) => {
 export const setBudgetByUserId = async (userId, budget) => {
   try {
     const token = await AsyncStorage.getItem("token");
+    console.log("tokenforbudget:", token);
     if (!token) {
       throw new Error("User is not authenticated");
     }
@@ -44,6 +52,8 @@ export const setBudgetByUserId = async (userId, budget) => {
       },
       body: JSON.stringify({ budget }),
     });
+
+    console.log("response for budget:", response);
 
     if (!response.ok) {
       throw new Error("Failed to set budget");

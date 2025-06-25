@@ -16,12 +16,14 @@ import ArrowLeft from "../assets/icons/ArrowLeft.png";
 import { fetchUserData } from "../api/authAPI";
 
 const Profile = () => {
+
   const [firstName, setFirstName] = useState(null);
   const [lastName, setLastName] = useState(null);
   const [email, setEmail] = useState(null);
   const [phone, setPhone] = useState(null);
   const [gender, setGender] = useState(null);
-  const [dob, setDob] = useState(new Date());
+  const [dob, setDob] = useState(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [open, setOpen] = useState(false);
 
   const navigation = useNavigation();
@@ -30,18 +32,12 @@ const Profile = () => {
     useCallback(() => {
       const loadUserData = async () => {
         try {
-          const storedUserData = await AsyncStorage.getItem("userData");
+          let storedUserData = await AsyncStorage.getItem("userData");
           if (!storedUserData) {
-            console.log("fetching");
-            const fetchedUserData = await fetchUserData();
-            await AsyncStorage.setItem(
-              "userData",
-              JSON.stringify(fetchedUserData)
-            );
+            throw new Error("User not found in storage.");
           }
-
           const userData = JSON.parse(storedUserData);
-
+          setUserId(userData.id || userData.user?.id);
           setFirstName(userData.firstName);
           setLastName(userData.lastName);
           setEmail(userData.email);

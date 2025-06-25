@@ -5,10 +5,14 @@ const userDB = new Database('users.db');
 userDB.prepare(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    firstname TEXT NOT NULL,
-    lastname TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    firstname TEXT,
+    lastname TEXT,
+    email TEXT UNIQUE,
+    password TEXT,
+    budget REAL,
+    phone TEXT,
+    gender TEXT,
+    dob TEXT
   )
 `).run();
 
@@ -20,15 +24,17 @@ userDB.prepare(`
     vendor TEXT,
     date TEXT,
     total REAL,
+    category TEXT,
     full_data TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   )
 `).run();
 
+
 // Prepare reusable statements
 const insertScan = userDB.prepare(`
-  INSERT INTO scans (user_id, vendor, date, total, full_data)
-  VALUES (?, ?, ?, ?, ?)
+  INSERT INTO scans (user_id, vendor, date, total, category, full_data)
+  VALUES (?, ?, ?, ?, ?, ?)
 `);
 
 const getUserScans = userDB.prepare(`

@@ -15,26 +15,25 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use(authRoutes); // /api/register and /api/login
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.send('API is running');
 });
 
-const uploadRoutes = require('./routes/upload');
-app.use('/api', uploadRoutes);
+app.use('/', require('./routes/auth'));
+
 
 app.post('/api/scan', async (req, res) => {
-  const { user_id, vendor, date, total, full_data } = req.body;
+  const { user_id, vendor, date, total, category, full_data } = req.body;
 
   // Optional: you can validate these fields before continuing
-  if (!user_id || !vendor || !date || !total) {
+  if (!user_id || !vendor || !date || !total || !category) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
     // Save scan to your database
-    const result = insertScan.run(user_id, vendor, date, total, full_data);
+    const result = insertScan.run(user_id, vendor, date, total, category, full_data);
     const scanId = result.lastInsertRowid;
 
     // Optionally: If you still want to call Veryfi API from backend, put it here.
@@ -50,6 +49,6 @@ app.post('/api/scan', async (req, res) => {
 
 // Start the server (one port only)
 app.listen(8081, URL, () => {
-  console.log('Backend running on http://localhost:3000');
+  console.log('Backend running on http://localhost:8081')
 });
 ``
