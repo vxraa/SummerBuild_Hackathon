@@ -152,89 +152,109 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    width: '100%', // Ensure full width
   },
   welcome: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#1E3C1F",
+    flexShrink: 1, // Allow text to shrink if needed
   },
   bell: {
     fontSize: 18,
+    marginLeft: 10, // Add some spacing
   },
   budgetCard: {
     backgroundColor: "#1E3C1F",
     borderRadius: 20,
     padding: 20,
     marginTop: 20,
+    width: '100%', // Ensure full width
   },
   budgetHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    width: '100%', // Ensure full width
   },
   budgetTitle: {
     fontSize: 18,
     fontFamily: "Poppins-Bold",
     color: "#FFF",
+    flexShrink: 1, // Allow text to shrink
+    marginRight: 10, // Add spacing between elements
   },
   setBudgetButton: {
     backgroundColor: "#FFDF78",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: 12, // Increased padding
+    paddingVertical: 6,
     borderRadius: 100,
+    minWidth: 100, // Ensure minimum width
   },
   setBudgetText: {
     fontSize: 13,
     fontFamily: "Poppins-SemiBold",
     color: "#3A4646",
+    textAlign: 'center', // Center text
   },
   remaining: {
     fontSize: 30,
     fontFamily: "Poppins-Bold",
     color: "#FFF",
     marginTop: 6,
+    width: '100%', // Ensure full width
+  },
+  rowDetails: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 8,
   },
   detail: {
     fontSize: 14,
     color: "#FFF",
-    marginTop: 4,
     fontFamily: "Poppins-Medium",
+    flexShrink: 1, // Allow text to shrink
+    maxWidth: '48%', // Prevent taking full width
   },
-  rowDetails: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  width: "100%",
-  marginTop: 4,
-},
-
   progressBar: {
     marginTop: 10,
+    width: '100%', // Ensure full width
   },
   month: {
     marginTop: 10,
     fontSize: 16,
     color: "#FFF",
     fontFamily: "Poppins-Bold",
+    width: '100%', // Ensure full width
   },
   goalSection: {
-    marginTop: 30,
-  },
-  goalTitle: {
-    fontSize: 18,
-    color: "#1E3C1F",
-    fontFamily: "Poppins-SemiBold",
-    marginBottom: 10,
-  },
-  goalCard: {
-    backgroundColor: "#1E3C1F",
-    borderRadius: 15,
-    padding: 15,
-  },
-  goalText: {
-    color: "#FFF",
-    fontSize: 16,
-    fontFamily: "Poppins-Medium",
-  },
+  marginTop: 30,
+  width: '100%',
+},
+goalTitle: {
+  fontSize: 18,
+  color: "#1E3C1F",
+  fontFamily: "Poppins-SemiBold",
+  marginBottom: 10,
+},
+goalCard: {
+  backgroundColor: "#1E3C1F",
+  borderRadius: 15,
+  padding: 15,
+  width: '100%',
+  // Remove fixed height & allow natural expansion
+  alignSelf: 'flex-start', // Prevents width compression
+},
+goalText: {
+  color: "#FFF",
+  fontSize: 16,
+  fontFamily: "Poppins-Medium",
+  flexWrap: 'wrap', // Allows text to wrap
+  width: '100%',   // Takes full container width
+  // Optional: Better text spacing
+  lineHeight: 22,  // Improves readability
+},
   cardImage: {
     width: width * 0.9,
     height: height * 0.4,
