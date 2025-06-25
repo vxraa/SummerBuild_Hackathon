@@ -11,20 +11,34 @@ import {
   Image,
 } from "react-native";
 import Button from "../components/Button";
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from "@expo-google-fonts/poppins";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const SetBudgetModal = ({ visible, onClose, onSetBudget }) => {
   const [budget, setBudget] = useState("");
-  const [scaleValue] = useState(new Animated.Value(0)); // Initialize scaling value
+  const [scaleValue] = useState(new Animated.Value(0));
+
+  const [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+  });
 
   const handleSetBudget = () => {
     if (budget) {
       onSetBudget(budget);
-      setBudget(""); // Clear input after setting budget
-      onClose(); // Close the modal
+      setBudget("");
+      onClose();
     } else {
-      alert("Please enter a budget."); // Alert if budget is empty
+      alert("Please enter a budget.");
     }
   };
 
@@ -33,7 +47,7 @@ const SetBudgetModal = ({ visible, onClose, onSetBudget }) => {
       Animated.spring(scaleValue, {
         toValue: 1,
         friction: 5,
-        useNativeDriver: true, // Use native driver for better performance
+        useNativeDriver: true,
       }).start();
     } else {
       Animated.spring(scaleValue, {
@@ -43,6 +57,8 @@ const SetBudgetModal = ({ visible, onClose, onSetBudget }) => {
       }).start();
     }
   }, [visible]);
+
+  if (!fontsLoaded) return null;
 
   return (
     <Modal visible={visible} transparent={true} animationType="none">
@@ -74,8 +90,8 @@ const SetBudgetModal = ({ visible, onClose, onSetBudget }) => {
             <Button
               title="Set Budget"
               onPress={handleSetBudget}
-              backgroundColor="#F47966"
-              textColor="#FFFFFF"
+              backgroundColor="#FFDF78"
+              textColor="#3A4646"
               borderRadius={25}
               width={screenWidth * 0.4}
               height={screenHeight * 0.055}
@@ -109,16 +125,17 @@ const styles = StyleSheet.create({
     right: 18,
     zIndex: 1,
   },
-  closeButton: {
-    color: "grey",
-    fontSize: screenHeight * 0.04,
+  closeIcon: {
+    height: 32,
+    width: 32,
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: "Poppins_700Bold",
   },
   instruction: {
     marginVertical: screenHeight * 0.02,
+    fontFamily: "Poppins_400Regular",
   },
   input: {
     height: 40,
@@ -127,14 +144,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: screenWidth * 0.04,
     marginBottom: screenHeight * 0.03,
+    fontFamily: "Poppins_400Regular",
   },
   buttonContainer: {
     alignItems: "center",
     marginBottom: screenHeight * 0.02,
-  },
-  closeIcon: {
-    height: 32,
-    width: 32,
   },
 });
 
