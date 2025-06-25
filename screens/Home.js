@@ -10,9 +10,10 @@ import {
 } from "react-native";
 import * as Progress from "react-native-progress";
 import SetBudgetModal from "./SetBudgetModal";
-import { getTripsByUserId, getBudgetByTripId, setBudgetByTripId } from "../api/tripsAPI";
+import { getBudgetByUserId, setBudgetByUserId } from "../api/tripsAPI";
 import { fetchUserData } from "../api/authAPI";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getExpensesByUserId } from "../api/expensesAPI";
 import NavBar from "../components/NavBar";
 
 const { width, height } = Dimensions.get("window");
@@ -22,7 +23,6 @@ export default function Home() {
   const [spent, setSpent] = useState(0);
   const [budgetModalVisible, setBudgetModalVisible] = useState(false);
   const [userId, setUserId] = useState(null);
-  const [selectedTripId, setSelectedTripId] = useState(-1);
 
   const remaining = budget - spent;
 
@@ -37,17 +37,12 @@ export default function Home() {
         const userData = JSON.parse(storedUserData);
         setUserId(userData.id);
 
-        const tripsData = await getTripsByUserId(userData.id);
-        if (tripsData.length > 0) {
-          setSelectedTripId(tripsData[0].id);
-          const fetchedBudget = await getBudgetByTripId(tripsData[0].id);
-          setBudget(fetchedBudget);
+        const fetchedBudget = await getBudgetByUserId(userData.id);
+        setBudget(fetchedBudget);
 
-          // Replace this with real API if available
-          const expenses = await fetch(`/api/trips/${tripsData[0].id}/expenses`).then(res => res.json());
-          const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-          setSpent(totalSpent);
-        }
+        const expenses = await getExpensesByUserId(userData.id);
+        const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+        setSpent(totalSpent);
       } catch (error) {
         console.error("Initialization error:", error);
       }
@@ -58,10 +53,8 @@ export default function Home() {
 
   const handleSetBudget = async (newBudget) => {
     try {
-      if (selectedTripId !== -1) {
-        await setBudgetByTripId(selectedTripId, newBudget);
-        setBudget(newBudget);
-      }
+      await setBudgetByUserId(userId, newBudget);
+      setBudget(newBudget);
     } catch (error) {
       console.error("Set budget error:", error);
     } finally {
