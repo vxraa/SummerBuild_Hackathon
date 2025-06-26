@@ -15,8 +15,8 @@ import { logoutUser } from "../api/authAPI";
 
 const Account = () => {
   const navigation = useNavigation();
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
+  const [firstname, setFirstName] = useState(null);
+  const [lastname, setLastName] = useState(null);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -34,8 +34,8 @@ const Account = () => {
 
         const userData = JSON.parse(storedUserData);
 
-        setFirstName(userData.firstName);
-        setLastName(userData.lastName);
+        setFirstName(userData.user.firstname);
+        setLastName(userData.user.lastname);
       } catch (error) {
         console.error("Failed to load user data", error);
       }
@@ -57,7 +57,7 @@ const Account = () => {
             </View>
             <View style={styles.userTextContainer}>
               <Text style={styles.userName}>
-                {firstName} {lastName}
+                {firstname} {lastname}
               </Text>
               <TouchableOpacity
                 style={styles.userInfoSectionProfileContainer}
@@ -79,7 +79,7 @@ const Account = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.accountItem}
-              onPress={() => navigation.navigate("SavedLocation")}
+              onPress={() => navigation.navigate("Home")}
             >
               <Text style={styles.accountItemText}>Saved Budgets</Text>
             </TouchableOpacity>

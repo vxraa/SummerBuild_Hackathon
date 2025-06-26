@@ -10,7 +10,7 @@ userDB.prepare(`
     email TEXT UNIQUE,
     password TEXT,
     budget REAL,
-    phone TEXT,
+    phone REAL,
     gender TEXT,
     dob TEXT
   )

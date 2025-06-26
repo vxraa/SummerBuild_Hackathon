@@ -7,31 +7,50 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const addExpense = async (expenseData) => {
   try {
     const token = await AsyncStorage.getItem("token");
-    if (!token) {
-      throw new Error("User is not authenticated");
-    }
+    console.log("expenseDataId",expenseData.user_id)
+    const url = `${BASE_URL}/api/users/${expenseData.user_id}/expenses`;
+    
+    // Prepare the payload with consistent field names
+    const payload = {
+      vendor: expenseData.vendor || expenseData.name, // Handle both cases
+      total: expenseData.total || expenseData.amount,
+      date: expenseData.date,
+      category: expenseData.category
+    };
 
-    const response = await fetch(`${BASE_URL}/api/expenses`, {
+    console.log("Sending to backend:", payload);
+
+    const response = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({
-        ...expenseData,
-        user_id: expenseData.user_id // Now using user_id instead of trip_id
-      }),
+      body: JSON.stringify(payload)
     });
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.message || "Failed to add expense");
+    const responseText = await response.text();
+    
+    // First try to parse as JSON
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+    } catch (e) {
+      console.error("Failed to parse JSON:", responseText);
+      throw new Error(`Server returned: ${responseText.substring(0, 100)}...`);
     }
 
-    return result;
+    if (!response.ok) {
+      throw new Error(responseData.message || `HTTP ${response.status}`);
+    }
+
+    return responseData;
   } catch (error) {
-    console.error("Error adding expense:", error);
+    console.error("Full API error:", {
+      message: error.message,
+      stack: error.stack
+    });
     throw error;
   }
 };

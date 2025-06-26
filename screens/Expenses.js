@@ -91,6 +91,7 @@ const Expenses = () => {
   });
 
   const [expenses, setExpenses] = useState([]);
+  const [amount, setAmount] = useState(""); // Changed from newExpense
   const [budget, setBudget] = useState(0);
   const [totalSpent, setTotalSpent] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
@@ -155,29 +156,27 @@ const Expenses = () => {
     setPieChartData(pieData);
   };
 
-  const handleAddExpense = async (expense) => {
-    try {
-      const newExpense = await addExpense({ ...expense, user_id: userId });
-      const updatedExpenses = [...expenses, newExpense];
-      setExpenses(updatedExpenses);
-      setTotalSpent(totalSpent + newExpense.amount);
-      updatePieChartData(updatedExpenses);
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Expense added successfully",
-      });
-      return newExpense;
-    } catch (error) {
-      console.error("Error adding expense:", error);
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to add expense",
-      });
-      throw error;
-    }
-  };
+  const handleAddExpense = async (expenseData) => {
+  try {
+    // Convert amount to total for backend
+    console.log("expensedata",expenseData);
+    
+    const newExpense = await addExpense(expenseData);
+    
+    // Update local state
+    setExpenses(prev => [...prev, {
+      ...newExpense,
+    }]);
+    
+    setTotalSpent(prev => prev + newExpense.total);
+    updatePieChartData([...expenses, newExpense]);
+    
+    return newExpense;
+  } catch (error) {
+    console.error("Error adding expense:", error);
+    throw error;
+  }
+};
 
   const handleSetBudget = async (newBudget) => {
     try {
@@ -224,7 +223,7 @@ const Expenses = () => {
     try {
       await deleteExpense(id);
       const updatedExpenses = expenses.filter((exp) => exp.id !== id);
-      setExpenses(updatedExpenses);
+      setAmount(updatedExpenses);
       setTotalSpent(updatedExpenses.reduce((sum, exp) => sum + exp.amount, 0));
       updatePieChartData(updatedExpenses);
       Toast.show({

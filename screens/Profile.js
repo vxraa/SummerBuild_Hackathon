@@ -17,8 +17,9 @@ import { fetchUserData } from "../api/authAPI";
 
 const Profile = () => {
 
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
+  const [firstname, setFirstName] = useState(null);
+  const [lastname, setLastName] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [email, setEmail] = useState(null);
   const [phone, setPhone] = useState(null);
   const [gender, setGender] = useState(null);
@@ -32,16 +33,18 @@ const Profile = () => {
     useCallback(() => {
       const loadUserData = async () => {
         try {
-          let storedUserData = await AsyncStorage.getItem("userData");
-          if (!storedUserData) {
-            throw new Error("User not found in storage.");
+
+
+          let userData = await fetchUserData();          
+          if (!userData) {
+            throw new Error("User not found in database.");
           }
-          const userData = JSON.parse(storedUserData);
-          setUserId(userData.id || userData.user?.id);
-          setFirstName(userData.firstName);
-          setLastName(userData.lastName);
+          console.log("userData:", userData)
+          setUserId(userData.id);
+          setFirstName(userData.firstname);
+          setLastName(userData.lastname);
           setEmail(userData.email);
-          setPhone(userData.phoneNumber);
+          setPhone(userData.phone);
           setGender(userData.gender);
           setDob(userData.dob);
         } catch (error) {
@@ -87,7 +90,7 @@ const Profile = () => {
           </View>
           <View style={styles.userTextContainer}>
             <Text style={styles.userName}>
-              {firstName} {lastName}
+              {firstname} {lastname}
             </Text>
             <Text style={styles.userInfoSectionProfile}>Joined - Jun 2025</Text>
           </View>

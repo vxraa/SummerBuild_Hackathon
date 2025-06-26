@@ -85,8 +85,8 @@ const iconData = [
 
 const AddExpenseModal = ({ visible, onClose, onAdd }) => {
   const navigation = useNavigation();
-  const [newExpense, setNewExpense] = useState("");
-  const [newDescription, setNewDescription] = useState("");
+  const [amount, setAmount] = useState(""); // Changed from newExpense
+  const [description, setDescription] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
@@ -123,58 +123,53 @@ const AddExpenseModal = ({ visible, onClose, onAdd }) => {
   if (!visible) return null;
 
   const handleAddExpense = async () => {
-    if (!newExpense.trim() || !selectedCategory) {
-      Alert.alert(
-        "Incomplete Input",
-        "Please enter an amount and select a category."
-      );
-      return;
-    }
+  // Validate inputs
+  if (!amount.trim() || !selectedCategory) {
+    Alert.alert(
+      "Incomplete Input",
+      "Please enter an amount and select a category."
+    );
+    return;
+  }
 
-    // Ensure date is a valid Date object before formatting
-    if (!(date instanceof Date) || isNaN(date.getTime())) {
-      Alert.alert("Error", "Invalid date selected.");
-      return;
-    }
-
-    const expenseData = {
-      amount: parseFloat(newExpense.trim()),
-      name: newDescription.trim(),
-      category: selectedCategory,
-      date: date.toISOString().split("T")[0], // Format as YYYY-MM-DD
-      user_id: userId, // Include user_id in the payload
-      trips_id: -1, // to be changed in main Expenses
-      payment_type: paymentType,
-    };
-
-    try {
-      const result = onAdd(expenseData); // API
-
-      console.log("Expense added successfully:", result);
-
-      // Show success toast
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Expense added successfully.",
-        position: "top", // Position can be 'top' or 'bottom'
-        visibilityTime: 3000, // Duration in ms
-      });
-
-      setNewExpense("");
-      setNewDescription("");
-      setSelectedCategory(null);
-      setDate(new Date());
-      onClose();
-      navigation.navigate("Expenses");
-    } catch (error) {
-      console.error("Error adding expense:", error);
-      Alert.alert(
-        "Error",
-        "An error occurred while adding the expense. Please try again."
-      );
-    }
+  // Prepare the expense data
+  const expenseData = {
+    vendor: description.trim(),       // Changed from name to vendor
+    total: parseFloat(amount.trim()), // Changed from amount to total
+    date: date.toISOString().split('T')[0],
+    category: selectedCategory,
+    user_id: userId
   };
+
+  try {
+    const response = await onAdd(expenseData);
+    console.log("Expense added successfully:", response);
+
+    // Reset form
+    setAmount("");
+    setDescription("");
+    setSelectedCategory(null);
+    setDate(new Date());
+    onClose();
+    
+    // Show success message
+    Toast.show({
+      type: "success",
+      text1: "Success",
+      text2: "Expense added successfully",
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error adding expense:", error);
+    Toast.show({
+      type: "error",
+      text1: "Error",
+      text2: error.message || "Failed to add expense",
+    });
+    throw error;
+  }
+};
 
   const handleSelectCategory = (category) => {
     setSelectedCategory(category);
@@ -207,8 +202,8 @@ const AddExpenseModal = ({ visible, onClose, onAdd }) => {
               <TextInput
                 style={styles.input}
                 placeholder="Title"
-                value={newDescription}
-                onChangeText={setNewDescription}
+                value= {description}
+                onChangeText={setDescription}
                 keyboardType="default"
               />
             </View>
@@ -217,8 +212,8 @@ const AddExpenseModal = ({ visible, onClose, onAdd }) => {
               <TextInput
                 style={styles.input}
                 placeholder="0.00"
-                value={newExpense}
-                onChangeText={setNewExpense}
+                value={amount}
+                onChangeText={setAmount}
                 keyboardType="numeric"
               />
             </View>

@@ -29,8 +29,8 @@ import { ScrollView } from "react-native-gesture-handler";
 
 const EditProfile = () => {
   const navigation = useNavigation();
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
+  const [firstname, setFirstName] = useState(null);
+  const [lastname, setLastName] = useState(null);
   const [email, setEmail] = useState(null);
   const [phone, setPhone] = useState(null);
   const [gender, setGender] = useState(null);
@@ -56,15 +56,16 @@ const EditProfile = () => {
             JSON.stringify(fetchedUserData)
           );
         }
+        console.log("stored user data: ", storedUserData);
 
         const userData = JSON.parse(storedUserData || "{}");
-        setFirstName(userData.firstName);
-        setLastName(userData.lastName);
-        setEmail(userData.email);
-        setPhone(userData.phoneNumber);
-        setGender(userData.gender);
-        setDobDate(new Date(userData.dob));
-        setDobStr(formatDate(new Date(userData.dob)));
+        setFirstName(userData.user.firstname);
+        setLastName(userData.user.lastname);
+        setEmail(userData.user.email);
+        setPhone(userData.user.phone);
+        setGender(userData.user.gender);
+        setDobDate(new Date(userData.user.dob));
+        setDobStr(formatDate(new Date(userData.user.dob)));
       } catch (error) {
         console.error("Failed to load user data", error);
 
@@ -125,13 +126,14 @@ const EditProfile = () => {
     try {
       const storedUserData = await AsyncStorage.getItem("userData");
       let userData = {};
+      console.log("storeduserdata: ", storedUserData)
 
       if (storedUserData !== null) {
         userData = JSON.parse(storedUserData);
       }
 
-      userData.firstName = newUserData.firstName || userData.firstName;
-      userData.lastName = newUserData.lastName || userData.lastName;
+      userData.firstname = newUserData.firstname || userData.firstname;
+      userData.lastname = newUserData.lastname || userData.lastname;
       userData.email = newUserData.email || userData.email;
       userData.phoneNumber = newUserData.phoneNumber || userData.phoneNumber;
       userData.gender = newUserData.gender || userData.gender;
@@ -151,14 +153,16 @@ const EditProfile = () => {
   const handleUpdate = async () => {
     try {
       let dob_string = dobDate.toISOString().split("T")[0];
+      console.log("")
       const userData = await updateProfile(
-        firstName,
-        lastName,
+        firstname,
+        lastname,
         email,
         phone,
         gender,
         dob_string
       );
+      
 
       await updateUserDataInAsyncStorage(userData);
 
@@ -167,7 +171,7 @@ const EditProfile = () => {
         text1: "Profile Updated",
         text2: "Your profile has been updated successfully.",
       });
-      navigation.navigate("EditProfile");
+      navigation.navigate("Profile");
     } catch (error) {
       Alert.alert(
         "Session Expired",
@@ -255,7 +259,7 @@ const EditProfile = () => {
                 <Text style={styles.label}>First Name</Text>
                 <TextInput
                   style={styles.nameInput}
-                  value={firstName}
+                  value={firstname}
                   editable={true}
                   onChangeText={setFirstName}
                 />
@@ -264,7 +268,7 @@ const EditProfile = () => {
                 <Text style={styles.label}>Last Name</Text>
                 <TextInput
                   style={styles.nameInput}
-                  value={lastName}
+                  value={lastname}
                   editable={true}
                   onChangeText={setLastName}
                 />

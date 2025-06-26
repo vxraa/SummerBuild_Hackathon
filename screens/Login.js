@@ -19,7 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { validateEmail } from "../utils/authUtil";
 import { loginUser } from "../api/authAPI";
 import VectorBackground from "../assets/images/VectorBackground.png";
-import { BASE_URL } from "../config";
+import BASE_URL  from "../config";
 
 const { width, height } = Dimensions.get('window');
 
