@@ -91,8 +91,8 @@ const Expenses = () => {
   });
 
   const [expenses, setExpenses] = useState([]);
-  const [amount, setAmount] = useState(""); // Changed from newExpense
   const [budget, setBudget] = useState(0);
+  const [total, setTotal] = useState(0);
   const [totalSpent, setTotalSpent] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -120,9 +120,11 @@ const Expenses = () => {
           getExpensesByUserId(userId)
         ]);
 
+        console.log("budget: ",userBudget, "expenses: ", userExpenses)
+
         setBudget(userBudget);
         setExpenses(userExpenses);
-        setTotalSpent(userExpenses.reduce((sum, exp) => sum + exp.amount, 0));
+        setTotalSpent(userExpenses.reduce((sum, exp) => sum + exp.total, 0));
         updatePieChartData(userExpenses);
       } catch (error) {
         console.error("Initialization error:", error);
@@ -141,7 +143,7 @@ const Expenses = () => {
 
   const updatePieChartData = (expenses) => {
     const categoryTotals = expenses.reduce((acc, item) => {
-      acc[item.category] = (acc[item.category] || 0) + item.amount;
+      acc[item.category] = (acc[item.category] || 0) + item.total;
       return acc;
     }, {});
 
@@ -158,19 +160,10 @@ const Expenses = () => {
 
   const handleAddExpense = async (expenseData) => {
   try {
-    // Convert amount to total for backend
-    console.log("expensedata",expenseData);
-    
     const newExpense = await addExpense(expenseData);
-    
-    // Update local state
-    setExpenses(prev => [...prev, {
-      ...newExpense,
-    }]);
-    
-    setTotalSpent(prev => prev + newExpense.total);
+    setExpenses(prev => [...prev, newExpense]);
+    setTotalSpent(prev => prev + newExpense.total); // Changed from amount to total
     updatePieChartData([...expenses, newExpense]);
-    
     return newExpense;
   } catch (error) {
     console.error("Error adding expense:", error);
@@ -223,8 +216,8 @@ const Expenses = () => {
     try {
       await deleteExpense(id);
       const updatedExpenses = expenses.filter((exp) => exp.id !== id);
-      setAmount(updatedExpenses);
-      setTotalSpent(updatedExpenses.reduce((sum, exp) => sum + exp.amount, 0));
+      setTotal(updatedExpenses);
+      setTotalSpent(updatedExpenses.reduce((sum, exp) => sum + exp.total, 0));
       updatePieChartData(updatedExpenses);
       Toast.show({
         type: "success",
@@ -327,7 +320,7 @@ const Expenses = () => {
                           {expense.category}
                         </Text>
                         <Text style={styles.expenseAmount}>
-                          SGD {expense.amount.toFixed(2)}
+                          SGD {expense.total.toFixed(2)}
                         </Text>
                         <Text style={styles.expenseTitle}>{expense.name}</Text>
                         <Text style={styles.expenseDate}>

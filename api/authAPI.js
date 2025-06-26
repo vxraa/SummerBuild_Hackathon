@@ -38,8 +38,10 @@ export const loginUser = async (email, password) => {
 export const registerUser = async (firstname, lastname, email, password) => {
   try {
     const data = { firstname, lastname, email, password };
+    console.log("dataforregiste:", data)
 
     const response = await fetch(`${BASE_URL}/api/register`, {
+       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },

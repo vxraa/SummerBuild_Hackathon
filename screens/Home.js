@@ -51,7 +51,7 @@ export default function Home() {
           try {
             const expenses = await getExpensesByUserId(userData.id || userData?.user?.id);
             console.log("Fetched expenses:", expenses);
-            const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const totalSpent = expenses.reduce((sum, exp) => sum + exp.total, 0);
             setSpent(totalSpent);
           } catch (e) {
             console.log("Expense fetch failed", e);
@@ -68,7 +68,7 @@ export default function Home() {
         setBudget(fetchedBudget);
 
         const expenses = await getExpensesByUserId(userId);
-        const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+        const totalSpent = expenses.reduce((sum, exp) => sum + exp.total, 0) || 0;
         setSpent(totalSpent);
       } catch (error) {
         console.error("Initialization error:", error);
